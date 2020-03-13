@@ -23,6 +23,16 @@ namespace TWN4Api
             return true;
         }
 
+        public bool Begin(int val)
+        {
+            byte[] request = { 0x18, 0x03 };
+            request = request.Add(BitConverter.GetBytes(val));
+            byte[] response = { 0x00, 0x01 };
+            byte[] buffer = _reader.Transmit(request);
+            if (!response.CompareSegments(0, buffer, 0, 2)) return false;
+            return true;
+        }
+
         public bool SearchTag()
         {
             byte[] request = { 0x05, 0x00, 0x10 };
@@ -70,6 +80,18 @@ namespace TWN4Api
             byte[] buffer = _reader.Transmit(request);
             if (!response.CompareSegments(0, buffer, 0, 2)) return false;
             message = buffer.Segment(4, buffer.Length - 4);
+            return true;
+        }
+
+        public bool GetFragmentByteCount(byte direction, out int maxFragmentSize)
+        {
+            maxFragmentSize = 0;
+            byte[] request = { 0x18, 0x02 };
+            request = request.AddByte(direction);
+            byte[] response = { 0x00 };
+            byte[] buffer = _reader.Transmit(request);
+            if (!response.CompareSegments(0, buffer, 0, 1)) return false;
+            maxFragmentSize = BitConverter.ToUInt16(buffer.Segment( 1, 2), 0);
             return true;
         }
     }
