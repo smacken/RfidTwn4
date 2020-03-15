@@ -94,5 +94,17 @@ namespace TWN4Api
             maxFragmentSize = BitConverter.ToUInt16(buffer.Segment( 1, 2), 0);
             return true;
         }
+
+        public bool TestMessage(out int messageLength)
+        {
+            messageLength = 0;
+            byte[] request = { 0x18, 0x05 };
+            byte[] response = { 0x00, 0x01 };
+            byte[] buffer = _reader.Transmit(request);
+            if (!response.CompareSegments(0, buffer, 0, 2))
+                return false;
+            messageLength = BitConverter.ToUInt16(buffer.Segment(2, 4), 0);
+            return true;
+        }
     }
 }
